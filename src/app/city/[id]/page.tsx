@@ -68,7 +68,6 @@ export default async function CityPageNext({ params }: CityPageProps) {
   const { id } = await params
   
   try {
-    // Get caching strategy for this city
     const cachingStrategy = getCachingStrategy(id)
     
     // SSR: Fetch data on server side

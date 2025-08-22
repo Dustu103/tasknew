@@ -50,8 +50,7 @@ export default async function PropertyPageNext({ params }: PropertyPageProps) {
 export async function generateStaticParams() {
   try {
     const properties = await getProperties()
-    const topProperties = properties.slice(0, 50) // Top 50 properties
-    
+    const topProperties = properties.slice(0, 50)     
     return topProperties.map((property) => ({
       id: property.id.toString(),
     }))
