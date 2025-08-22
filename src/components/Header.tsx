@@ -1,22 +1,10 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { Home, Heart, User, Menu, Search } from 'lucide-react'
+import { Home, Heart, User, Menu } from 'lucide-react'
 
 export function Header() {
   const router = useRouter()
-
-  const handleSearch = (query: string, location: string) => {
-    console.log('Search:', { query, location })
-    
-    // Navigate to search page with query parameters
-    const searchParams = new URLSearchParams()
-    if (query) searchParams.set('q', query)
-    if (location) searchParams.set('location', location)
-    
-    const searchUrl = `/search?${searchParams.toString()}`
-    router.push(searchUrl)
-  }
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
@@ -33,8 +21,8 @@ export function Header() {
             <span className="text-xl font-bold text-gray-900">Housing.com</span>
           </button>
 
-                     {/* Spacer for layout balance */}
-           <div className="hidden lg:flex flex-1 max-w-md mx-8" />
+          {/* Spacer for layout balance */}
+          <div className="hidden lg:flex flex-1 max-w-md mx-8" />
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
@@ -85,3 +73,5 @@ export function Header() {
     </header>
   )
 }
+
+export default Header

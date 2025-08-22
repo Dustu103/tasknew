@@ -4,22 +4,22 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { PopularCitiesSection } from '@/components/PopularCitiesSection'
 import { LazyLoadProperties } from '@/components/LazyLoadProperties'
-import { Property } from '@/types'
+import { Property, City } from '@/types'
 
 interface SearchPageProps {
   properties: Property[]
-  cities: any[]
+  cities: City[]
 }
 
-export function SearchPage({ properties, cities }: SearchPageProps) {
+export function SearchPage({ properties }: SearchPageProps) {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [searchResults, setSearchResults] = useState<Property[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const query = searchParams.get('q') || ''
-    const location = searchParams.get('location') || ''
+    const query = searchParams?.get('q') || ''
+    const location = searchParams?.get('location') || ''
 
     setIsLoading(true)
 
@@ -76,10 +76,10 @@ export function SearchPage({ properties, cities }: SearchPageProps) {
                 <div className="max-w-md mx-auto">
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">No properties found</h3>
                   <p className="text-gray-600 mb-6">Try adjusting your search criteria or browse our featured properties</p>
-                                      <button 
-                      onClick={() => router.push('/')}
-                      className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                    >
+                  <button 
+                    onClick={() => router.push('/')}
+                    className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
                     Browse Featured Properties
                   </button>
                 </div>
@@ -100,3 +100,5 @@ export function SearchPage({ properties, cities }: SearchPageProps) {
     </div>
   )
 }
+
+export default SearchPage

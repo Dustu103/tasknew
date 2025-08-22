@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
-import { CityPage } from '@/pages/CityPage'
+import CityPage  from '@/pages/CityPage'
 import { getCities, getPropertiesByLocation } from '@/lib/data'
 
 interface CityPageProps {
@@ -99,7 +99,6 @@ export default async function CityPageNext({ params }: CityPageProps) {
         <CityPage 
           properties={properties} 
           cities={cities} 
-          revalidateTime={cachingStrategy.revalidate}
         />
       </Suspense>
     )

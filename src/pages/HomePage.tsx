@@ -2,11 +2,11 @@
 
 import { HeroSection } from '@/components/HeroSection'
 import { PopularCitiesSection } from '@/components/PopularCitiesSection'
-import { Property } from '@/types'
+import { Property, City } from '@/types'
 
 interface HomePageProps {
   properties: Property[]
-  cities: any[]
+  cities: City[]
 }
 
 export function HomePage({ properties, cities }: HomePageProps) {
@@ -17,3 +17,5 @@ export function HomePage({ properties, cities }: HomePageProps) {
     </>
   )
 }
+
+export default HomePage

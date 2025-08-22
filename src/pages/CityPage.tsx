@@ -5,7 +5,7 @@ import { useState, useEffect, memo, useMemo, useCallback } from 'react'
 import dynamic from 'next/dynamic'
 import { CitySearchSection } from '@/components/CitySearchSection'
 import { PopularCitiesSection } from '@/components/PopularCitiesSection'
-import { Property } from '@/types'
+import { Property, City } from '@/types'
 
 // Lazy load heavy components with proper client-side loading
 const LazyLoadProperties = dynamic(() => import('@/components/LazyLoadProperties').then(mod => ({ default: mod.LazyLoadProperties })), {
@@ -32,12 +32,11 @@ PropertiesSkeleton.displayName = 'PropertiesSkeleton'
 
 interface CityPageProps {
   properties: Property[]
-  cities: any[]
-  revalidateTime?: number
+  cities: City[]
 }
 
 // Memoized city info component
-const CityInfo = memo(({ city, propertyCount }: { city: any; propertyCount: number }) => (
+const CityInfo = memo(({ city, propertyCount }: { city: City; propertyCount: number }) => (
   <div className="mb-8">
     <h1 className="text-3xl font-bold text-gray-900 mb-2">Properties in {city.name}</h1>
     <p className="text-gray-600">Found {propertyCount} properties in {city.name}</p>
@@ -64,13 +63,11 @@ const EmptyState = memo(({ cityName, onBrowseClick }: { cityName: string; onBrow
 
 EmptyState.displayName = 'EmptyState'
 
-
-
-const CityPage = memo(({ properties, cities, revalidateTime = 86400 }: CityPageProps) => {
+const CityPage = memo(({ properties, cities }: CityPageProps) => {
   const params = useParams()
   const router = useRouter()
-  const id = params.id as string
-  const [city, setCity] = useState<any>(null)
+  const id = params?.id as string
+  const [city, setCity] = useState<City | null>(null)
   const [cityProperties, setCityProperties] = useState<Property[]>([])
 
   // Memoized city data processing
@@ -121,8 +118,6 @@ const CityPage = memo(({ properties, cities, revalidateTime = 86400 }: CityPageP
       <CitySearchSection currentCity={city.name} />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
-        
         <CityInfo city={city} propertyCount={cityProperties.length} />
 
         {cityProperties.length === 0 ? (
@@ -144,4 +139,4 @@ const CityPage = memo(({ properties, cities, revalidateTime = 86400 }: CityPageP
 
 CityPage.displayName = 'CityPage'
 
-export { CityPage }
+export default CityPage

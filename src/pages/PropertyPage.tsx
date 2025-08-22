@@ -1,17 +1,16 @@
 'use client'
 
-import { useParams, useRouter } from 'next/navigation'
 import { useState, useEffect, memo, useCallback } from 'react'
 import Image from 'next/image'
 import { PopularCitiesSection } from '@/components/PopularCitiesSection'
 import { formatPrice, formatArea } from '@/lib/utils'
-import { Bed, Bath, Car, MapPin, Calendar, Users, Clock } from 'lucide-react'
-import { Property } from '@/types'
+import { Bed, Bath, Car, MapPin, Users } from 'lucide-react'
+import { Property, City } from '@/types'
 
 interface PropertyPageProps {
   property: Property
   properties: Property[]
-  cities: any[]
+  cities: City[]
 }
 
 // Memoized availability status component
@@ -71,10 +70,7 @@ const AvailabilityStatus = memo(({ availability, propertyType, onBookNow }: {
 
 AvailabilityStatus.displayName = 'AvailabilityStatus'
 
-export function PropertyPage({ property: initialProperty, properties, cities }: PropertyPageProps) {
-  const params = useParams()
-  const router = useRouter()
-  const id = params.id as string
+export function PropertyPage({ property: initialProperty }: PropertyPageProps) {
   const [property, setProperty] = useState<Property>(initialProperty)
   const [availability, setAvailability] = useState(property.availability || 5) // Default availability
   const [isBooking, setIsBooking] = useState(false)
@@ -248,3 +244,5 @@ export function PropertyPage({ property: initialProperty, properties, cities }: 
     </div>
   )
 }
+
+export default PropertyPage

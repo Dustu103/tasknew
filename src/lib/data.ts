@@ -65,31 +65,31 @@ async function fetchWithCache<T>(url: string, options: { revalidate?: number } =
 }
 
 // Real Next.js fetch with caching (for production)
-async function fetchWithNextJSCache<T>(url: string, options: { revalidate?: number } = {}): Promise<T> {
+async function fetchWithNextJSCache<T>(url: string): Promise<T> {
   // This is how you would use Next.js fetch with caching in production
   // const response = await fetch(url, { 
-  //   next: { revalidate: options.revalidate || 3600 } 
+  //   next: { revalidate: 3600 } 
   // })
   // return response.json()
   
   // For now, we use our simulation
-  return fetchWithCache<T>(url, options)
+  return fetchWithCache<T>(url)
 }
 
 export async function getProperties(params: SearchParams = {}): Promise<Property[]> {
   // Use Next.js fetch caching with SSR optimization
-  const properties = await fetchWithNextJSCache<Property[]>('/api/properties', { revalidate: 3600 })
+  const properties = await fetchWithNextJSCache<Property[]>('/api/properties')
   return filterProperties(properties, params)
 }
 
 export async function getCities(): Promise<City[]> {
   // Use Next.js fetch caching with SSR optimization
-  return await fetchWithNextJSCache<City[]>('/api/cities', { revalidate: 86400 }) // Cache for 1 day
+  return await fetchWithNextJSCache<City[]>('/api/cities') // Cache for 1 day
 }
 
 export async function getTrendingSearches(): Promise<TrendingSearch[]> {
   // Use Next.js fetch caching with SSR optimization
-  return await fetchWithNextJSCache<TrendingSearch[]>('/api/trending', { revalidate: 1800 }) // Cache for 30 minutes
+  return await fetchWithNextJSCache<TrendingSearch[]>('/api/trending') // Cache for 30 minutes
 }
 
 export async function getFeaturedProperties(limit: number = 12): Promise<Property[]> {
@@ -102,9 +102,7 @@ export async function getPropertiesByLocation(location: string, limit: number = 
   const cachingStrategy = getCachingStrategy(location.toLowerCase())
   
   // Use Next.js fetch caching with city-specific revalidation and SSR optimization
-  const properties = await fetchWithNextJSCache<Property[]>(`/api/properties?location=${location}`, {
-    revalidate: cachingStrategy.revalidate
-  })
+  const properties = await fetchWithNextJSCache<Property[]>(`/api/properties?location=${location}`)
   
   return properties
     .filter((p: Property) => 
