@@ -40,8 +40,8 @@ export default async function PropertyPageNext({ params }: PropertyPageProps) {
         />
       </Suspense>
     )
-  } catch (error) {
-    console.error('Error loading property page:', error)
+  } catch (_error) {
+    console.error('Error loading property page:', _error)
     notFound()
   }
 }
@@ -55,8 +55,8 @@ export async function generateStaticParams() {
     return topProperties.map((property) => ({
       id: property.id.toString(),
     }))
-  } catch (error) {
-    console.error('Error generating static params:', error)
+  } catch (_error) {
+    console.error('Error generating static params:', _error)
     return []
   }
 }
@@ -85,7 +85,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
         type: 'website',
       }
     }
-  } catch (error) {
+  } catch (_error) {
     return {
       title: 'Property Details - Housing.com',
       description: 'Find your dream home'

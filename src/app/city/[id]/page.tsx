@@ -58,8 +58,8 @@ export async function generateStaticParams() {
     return topCities.map((city) => ({
       id: city.slug,
     }))
-  } catch (error) {
-    console.error('Error generating static params:', error)
+  } catch (_error) {
+    console.error('Error generating static params:', _error)
     return []
   }
 }
@@ -102,8 +102,8 @@ export default async function CityPageNext({ params }: CityPageProps) {
         />
       </Suspense>
     )
-  } catch (error) {
-    console.error('Error loading city page:', error)
+  } catch (_error) {
+    console.error('Error loading city page:', _error)
     notFound()
   }
 }
@@ -135,7 +135,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
         type: 'website',
       }
     }
-  } catch (error) {
+  } catch (_error) {
     return {
       title: 'Properties - Housing.com',
       description: 'Find your dream home'

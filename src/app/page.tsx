@@ -1,6 +1,5 @@
 import { Suspense } from 'react'
 import { HomePage } from '@/pages/HomePage'
-import { mockProperties, mockCities } from '@/data/mockData'
 
 export default function Home() {
   return (
@@ -12,7 +11,7 @@ export default function Home() {
         </div>
       </div>
     }>
-      <HomePage properties={mockProperties} cities={mockCities} />
+      <HomePage />
     </Suspense>
   )
 }

@@ -8,9 +8,9 @@ import { Bed, Bath, Car, MapPin, Users } from 'lucide-react'
 import { Property, City } from '@/types'
 
 interface PropertyPageProps {
-  property: Property
-  properties: Property[]
-  cities: City[]
+  property?: Property
+  properties?: Property[]
+  cities?: City[]
 }
 
 // Memoized availability status component
@@ -71,14 +71,16 @@ const AvailabilityStatus = memo(({ availability, propertyType, onBookNow }: {
 AvailabilityStatus.displayName = 'AvailabilityStatus'
 
 export function PropertyPage({ property: initialProperty }: PropertyPageProps) {
-  const [property, setProperty] = useState<Property>(initialProperty)
-  const [availability, setAvailability] = useState(property.availability || 5) // Default availability
+  const [property, setProperty] = useState<Property | undefined>(initialProperty)
+  const [availability, setAvailability] = useState(initialProperty?.availability || 5) // Fixed: Added null check
   const [isBooking, setIsBooking] = useState(false)
 
   // Update property when initialProperty changes
   useEffect(() => {
-    setProperty(initialProperty)
-    setAvailability(initialProperty.availability || 5)
+    if (initialProperty) {
+      setProperty(initialProperty)
+      setAvailability(initialProperty.availability || 5)
+    }
   }, [initialProperty])
 
   // Simulate real-time availability updates
@@ -111,7 +113,7 @@ export function PropertyPage({ property: initialProperty }: PropertyPageProps) {
       
       // Show success message
       alert('Property booked successfully!')
-    } catch (error) {
+    } catch (_error) {
       alert('Booking failed. Please try again.')
     } finally {
       setIsBooking(false)

@@ -38,16 +38,11 @@ const CACHING_STRATEGIES = {
   'default': { revalidate: 2592000 }
 }
 
-// Get caching strategy for a city
-function getCachingStrategy(citySlug: string) {
-  return CACHING_STRATEGIES[citySlug as keyof typeof CACHING_STRATEGIES] || CACHING_STRATEGIES.default
-}
-
 // Simulate API delay
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 // Simulate fetch with Next.js caching
-async function fetchWithCache<T>(url: string, options: { revalidate?: number } = {}): Promise<T> {
+async function fetchWithCache<T>(url: string): Promise<T> {
   // In a real app, this would be an actual fetch call with Next.js caching
   // For now, we simulate the caching behavior
   await delay(100)
@@ -98,9 +93,6 @@ export async function getFeaturedProperties(limit: number = 12): Promise<Propert
 }
 
 export async function getPropertiesByLocation(location: string, limit: number = 12): Promise<Property[]> {
-  // Get caching strategy for this location
-  const cachingStrategy = getCachingStrategy(location.toLowerCase())
-  
   // Use Next.js fetch caching with city-specific revalidation and SSR optimization
   const properties = await fetchWithNextJSCache<Property[]>(`/api/properties?location=${location}`)
   
@@ -158,12 +150,10 @@ function filterProperties(properties: Property[], params: SearchParams): Propert
 
 // Example of how to use real fetch with Next.js caching
 export async function getCityData(citySlug: string) {
-  const cachingStrategy = getCachingStrategy(citySlug)
-  
   // This is how you would use real fetch with Next.js caching
   // const response = await fetch(`https://api.example.com/cities/${citySlug}`, {
   //   next: {
-  //     revalidate: cachingStrategy.revalidate,
+  //     revalidate: 3600,
   //     tags: [`city-${citySlug}`]
   //   }
   // })

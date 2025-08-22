@@ -7,11 +7,11 @@ import { LazyLoadProperties } from '@/components/LazyLoadProperties'
 import { Property, City } from '@/types'
 
 interface SearchPageProps {
-  properties: Property[]
-  cities: City[]
+  properties?: Property[]
+  cities?: City[]
 }
 
-export function SearchPage({ properties }: SearchPageProps) {
+export function SearchPage({ properties = [] }: SearchPageProps) {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [searchResults, setSearchResults] = useState<Property[]>([])

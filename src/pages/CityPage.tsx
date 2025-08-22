@@ -31,8 +31,8 @@ const PropertiesSkeleton = memo(() => (
 PropertiesSkeleton.displayName = 'PropertiesSkeleton'
 
 interface CityPageProps {
-  properties: Property[]
-  cities: City[]
+  properties?: Property[]
+  cities?: City[]
 }
 
 // Memoized city info component
@@ -63,7 +63,7 @@ const EmptyState = memo(({ cityName, onBrowseClick }: { cityName: string; onBrow
 
 EmptyState.displayName = 'EmptyState'
 
-const CityPage = memo(({ properties, cities }: CityPageProps) => {
+const CityPage = memo(({ properties = [], cities = [] }: CityPageProps) => {
   const params = useParams()
   const router = useRouter()
   const id = params?.id as string
