@@ -5,7 +5,7 @@ import { Header } from '@/components/Header'
 import { mockProperties } from '@/data/mockData'
 import { Property } from '@/types'
 import { formatPrice, formatArea } from '@/lib/utils'
-import { Bed, Bath, Car, MapPin, Calendar, Star } from 'lucide-react'
+import { Bed, Bath, Car, MapPin, Calendar } from 'lucide-react'
 
 // Force dynamic rendering for property details - data changes frequently
 export const dynamic = 'force-dynamic'

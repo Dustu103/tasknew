@@ -46,7 +46,7 @@ async function PopularCities() {
             Popular Cities
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Explore properties in India's most sought-after cities
+            Explore properties in India&apos;s most sought-after cities
           </p>
         </div>
         

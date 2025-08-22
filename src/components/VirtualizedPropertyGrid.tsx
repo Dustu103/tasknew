@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { PropertyCard, PropertyCardSkeleton } from '@/components/PropertyCard'
 import { Property } from '@/types'
 
@@ -18,7 +18,7 @@ export function VirtualizedPropertyGrid({
   overscan = 5
 }: VirtualizedPropertyGridProps) {
   const [scrollTop, setScrollTop] = useState(0)
-  const [containerRef, setContainerRef] = useState<HTMLDivElement | null>(null)
+  const [containerRef] = useState<HTMLDivElement | null>(null)
   
   const itemsPerRow = 4 // xl:grid-cols-4
   const rowHeight = itemHeight + 24 // gap-6 = 24px

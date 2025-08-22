@@ -1,6 +1,7 @@
 // app/city/[id]/page.tsx
 import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
+import Link from 'next/link'
 import { Header } from '@/components/Header'
 import { SearchBar } from '@/components/SearchBar'
 import { PropertyCardSkeleton } from '@/components/PropertyCard'
@@ -67,7 +68,7 @@ export async function generateMetadata({ params }: CityPageProps) {
 
 function filterPropertiesByCity(properties: Property[], cityNameOrSlug: string): Property[] {
   // Accept either city slug or name; prefer matching by city name if found locally
-  const city = mockCities.find((c) => c.slug === cityNameOrSlug) ?? mockCities.find((c) => c.name.toLowerCase() === cityNameOrSlug.toLowerCase())
+  const city = mockCities.find((c) => c.name.toLowerCase() === cityNameOrSlug.toLowerCase())
   if (!city) return []
   return properties
     .filter((p) => p.location.city.toLowerCase() === city.name.toLowerCase())
@@ -97,7 +98,7 @@ async function CityProperties({ citySlug }: { citySlug: string }) {
           <div className="max-w-md mx-auto">
             <h3 className="text-xl font-semibold text-gray-900 mb-2">No properties found in {city.name}</h3>
             <p className="text-gray-600 mb-6">Try searching in nearby areas or browse our featured properties</p>
-            <a href="/" className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">Browse Featured Properties</a>
+            <Link href="/" className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">Browse Featured Properties</Link>
           </div>
         </div>
       ) : (

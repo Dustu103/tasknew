@@ -22,7 +22,7 @@ export function PerformanceMonitor() {
       
       try {
         lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] })
-      } catch (e) {
+      } catch {
         console.warn('LCP observer not supported')
       }
 
@@ -43,7 +43,7 @@ export function PerformanceMonitor() {
       
       try {
         fidObserver.observe({ entryTypes: ['first-input'] })
-      } catch (e) {
+      } catch {
         console.warn('FID observer not supported')
       }
 
@@ -51,9 +51,9 @@ export function PerformanceMonitor() {
       let clsValue = 0
       const clsObserver = new PerformanceObserver((list) => {
         const entries = list.getEntries()
-        entries.forEach((entry: any) => {
+        entries.forEach((entry: PerformanceEntry & { hadRecentInput?: boolean; value?: number }) => {
           if (!entry.hadRecentInput) {
-            clsValue += entry.value
+            clsValue += entry.value || 0
           }
         })
         console.log('CLS:', clsValue)
@@ -67,15 +67,15 @@ export function PerformanceMonitor() {
       
       try {
         clsObserver.observe({ entryTypes: ['layout-shift'] })
-      } catch (e) {
+      } catch {
         console.warn('CLS observer not supported')
       }
 
       // Time to First Byte (TTFB)
       const navigationObserver = new PerformanceObserver((list) => {
         const entries = list.getEntries()
-        entries.forEach((entry: any) => {
-          const ttfb = entry.responseStart - entry.requestStart
+        entries.forEach((entry: PerformanceEntry & { responseStart?: number; requestStart?: number }) => {
+          const ttfb = (entry.responseStart || 0) - (entry.requestStart || 0)
           console.log('TTFB:', ttfb)
           
           if (ttfb < 800) {
@@ -88,7 +88,7 @@ export function PerformanceMonitor() {
       
       try {
         navigationObserver.observe({ entryTypes: ['navigation'] })
-      } catch (e) {
+      } catch {
         console.warn('Navigation observer not supported')
       }
     }

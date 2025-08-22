@@ -1,9 +1,9 @@
 import { Suspense } from 'react'
+import Link from 'next/link'
 import { Header } from '@/components/Header'
 import { SearchPageWrapper } from '@/components/SearchPageWrapper'
 import { PropertyCardSkeleton } from '@/components/PropertyCard'
 import { LazyLoadProperties } from '@/components/LazyLoadProperties'
-import { PriceFilter } from '@/components/PriceFilter'
 import { mockProperties } from '@/data/mockData'
 import { SearchParams, Property } from '@/types'
 
@@ -85,12 +85,12 @@ async function SearchResults({ searchParams }: { searchParams: SearchParams }) {
             <p className="text-gray-600 mb-6">
               Try adjusting your search criteria or browse our featured properties
             </p>
-            <a
+            <Link
               href="/"
               className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               Browse Featured Properties
-            </a>
+            </Link>
           </div>
         </div>
       ) : (

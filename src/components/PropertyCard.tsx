@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Property } from '@/types'
 import { formatPrice, formatArea, getImageUrl } from '@/lib/utils'
-import { Bed, Bath, Square, MapPin, Calendar, Monitor, Car, Play } from 'lucide-react'
+import { Bed, Square, MapPin, Calendar, Monitor, Car, Play } from 'lucide-react'
 
 interface PropertyCardProps {
   property: Property

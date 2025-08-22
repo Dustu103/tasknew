@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Search, MapPin, Home, Building, Home as Villa, ChevronDown, Monitor, Car } from 'lucide-react'
+import { Search, MapPin, ChevronDown } from 'lucide-react'
 import { mockCities } from '@/data/mockData'
 
 interface SearchBarProps {

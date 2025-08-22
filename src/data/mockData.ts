@@ -122,7 +122,7 @@ const developers = [
 ]
 
 // Convert raw data to Property interface
-function convertToProperty(raw: any): Property {
+function convertToProperty(raw: { id: number; location: string; city: string; img: string }): Property {
   const developer = developers[Math.floor(Math.random() * developers.length)]
   const isReadyToMove = Math.random() > 0.7
   const possessionDate = isReadyToMove ? undefined : `December ${2025 + Math.floor(Math.random() * 5)}`
@@ -136,8 +136,8 @@ function convertToProperty(raw: any): Property {
     bedrooms: 1 + Math.floor(Math.random() * 3), // 1-3 BHK
     bathrooms: 1 + Math.floor(Math.random() * 2), // 1-2 bathrooms
     parking: Math.floor(Math.random() * 2), // 0-1 parking
-    propertyType: ['apartment', 'house', 'villa'][Math.floor(Math.random() * 3)] as any,
-    furnishing: ['furnished', 'semi-furnished', 'unfurnished'][Math.floor(Math.random() * 3)] as any,
+    propertyType: ['apartment', 'house', 'villa'][Math.floor(Math.random() * 3)] as 'apartment' | 'house' | 'villa',
+    furnishing: ['furnished', 'semi-furnished', 'unfurnished'][Math.floor(Math.random() * 3)] as 'furnished' | 'semi-furnished' | 'unfurnished',
     floor: `${Math.floor(Math.random() * 20) + 1}${['st', 'nd', 'rd', 'th'][Math.floor(Math.random() * 4)]} Floor`,
     amenities: ['Gym', 'Swimming Pool', 'Garden', 'Security', 'Parking', 'Lift', 'Power Backup', 'Water Supply'].slice(0, 4 + Math.floor(Math.random() * 4)),
     images: [raw.img, raw.img, raw.img, raw.img, raw.img], // Same image for all 5 slots

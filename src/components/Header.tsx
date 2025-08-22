@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Home, Search, Heart, User, Menu } from 'lucide-react'
+import { Home, Heart, User, Menu } from 'lucide-react'
 
 export function Header() {
   return (
