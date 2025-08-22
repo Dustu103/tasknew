@@ -1,8 +1,8 @@
 'use client'
 
 import { memo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import Link from 'next/link'
 import { City } from '@/types'
 import { formatPrice } from '@/lib/utils'
 import { MapPin, Home } from 'lucide-react'
@@ -13,6 +13,7 @@ interface CityBannerProps {
 
 // Optimized CityBanner with React.memo for performance
 export const CityBanner = memo(function CityBanner({ city }: CityBannerProps) {
+  const router = useRouter()
   const [imageLoading, setImageLoading] = useState(true)
   const [imageError, setImageError] = useState(false)
 
@@ -30,10 +31,9 @@ export const CityBanner = memo(function CityBanner({ city }: CityBannerProps) {
   const imageSrc = imageError ? fallbackImage : `https://images.unsplash.com/photo-${city.image}?w=400&h=300&fit=crop&auto=format&q=80`
 
   return (
-    <Link
-      href={`/city/${city.slug}`}
-      className="group block relative overflow-hidden rounded-lg aspect-[3/2] bg-gradient-to-br from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 transition-all duration-300"
-      prefetch={true}
+    <button
+      onClick={() => router.push(`/city/${city.slug}`)}
+      className="group block relative overflow-hidden rounded-lg aspect-[3/2] bg-gradient-to-br from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 transition-all duration-300 w-full text-left"
     >
       {/* Loading skeleton */}
       {imageLoading && (
@@ -73,7 +73,7 @@ export const CityBanner = memo(function CityBanner({ city }: CityBannerProps) {
           </div>
         </div>
       </div>
-    </Link>
+    </button>
   )
 })
 

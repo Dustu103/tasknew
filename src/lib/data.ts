@@ -1,46 +1,95 @@
 import { mockProperties, mockCities, mockTrendingSearches } from '@/data/mockData'
 import { Property, City, TrendingSearch, SearchParams } from '@/types'
 
-// Cache for static data
-let propertiesCache: Property[] | null = null
-let citiesCache: City[] | null = null
-let trendingSearchesCache: TrendingSearch[] | null = null
+// Define caching strategies for different cities
+const CACHING_STRATEGIES = {
+  // Top tier cities - High traffic, frequent updates (1 hour)
+  'mumbai': { revalidate: 3600 },
+  'delhi': { revalidate: 3600 },
+  'bangalore': { revalidate: 3600 },
+  'bengaluru': { revalidate: 3600 },
+  'pune': { revalidate: 3600 },
+  
+  // Second tier cities - Medium traffic, daily updates (1 day)
+  'kolkata': { revalidate: 86400 },
+  'chennai': { revalidate: 86400 },
+  'hyderabad': { revalidate: 86400 },
+  'ahmedabad': { revalidate: 86400 },
+  'noida': { revalidate: 86400 },
+  'gurgaon': { revalidate: 86400 },
+  'gurugram': { revalidate: 86400 },
+  'thane': { revalidate: 86400 },
+  'navi-mumbai': { revalidate: 86400 },
+  'faridabad': { revalidate: 86400 },
+  
+  // Third tier cities - Lower traffic, weekly updates (1 week)
+  'lucknow': { revalidate: 604800 },
+  'jaipur': { revalidate: 604800 },
+  'indore': { revalidate: 604800 },
+  'bhopal': { revalidate: 604800 },
+  'patna': { revalidate: 604800 },
+  'chandigarh': { revalidate: 604800 },
+  'vadodara': { revalidate: 604800 },
+  'nagpur': { revalidate: 604800 },
+  'coimbatore': { revalidate: 604800 },
+  'kochi': { revalidate: 604800 },
+  
+  // Default for other cities - Monthly updates (1 month)
+  'default': { revalidate: 2592000 }
+}
+
+// Get caching strategy for a city
+function getCachingStrategy(citySlug: string) {
+  return CACHING_STRATEGIES[citySlug as keyof typeof CACHING_STRATEGIES] || CACHING_STRATEGIES.default
+}
 
 // Simulate API delay
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
-export async function getProperties(params: SearchParams = {}): Promise<Property[]> {
-  // Simulate API call with caching
-  if (propertiesCache) {
-    await delay(50) // Simulate cache hit
-    return filterProperties(propertiesCache, params)
+// Simulate fetch with Next.js caching
+async function fetchWithCache<T>(url: string, options: { revalidate?: number } = {}): Promise<T> {
+  // In a real app, this would be an actual fetch call with Next.js caching
+  // For now, we simulate the caching behavior
+  await delay(100)
+  
+  // Simulate different data based on URL
+  if (url.includes('/cities')) {
+    return mockCities as T
+  } else if (url.includes('/properties')) {
+    return mockProperties as T
+  } else if (url.includes('/trending')) {
+    return mockTrendingSearches as T
   }
+  
+  return [] as T
+}
 
-  await delay(200) // Simulate API call
-  propertiesCache = mockProperties
-  return filterProperties(propertiesCache, params)
+// Real Next.js fetch with caching (for production)
+async function fetchWithNextJSCache<T>(url: string, options: { revalidate?: number } = {}): Promise<T> {
+  // This is how you would use Next.js fetch with caching in production
+  // const response = await fetch(url, { 
+  //   next: { revalidate: options.revalidate || 3600 } 
+  // })
+  // return response.json()
+  
+  // For now, we use our simulation
+  return fetchWithCache<T>(url, options)
+}
+
+export async function getProperties(params: SearchParams = {}): Promise<Property[]> {
+  // Use Next.js fetch caching with SSR optimization
+  const properties = await fetchWithNextJSCache<Property[]>('/api/properties', { revalidate: 3600 })
+  return filterProperties(properties, params)
 }
 
 export async function getCities(): Promise<City[]> {
-  if (citiesCache) {
-    await delay(30)
-    return citiesCache
-  }
-
-  await delay(150)
-  citiesCache = mockCities
-  return citiesCache
+  // Use Next.js fetch caching with SSR optimization
+  return await fetchWithNextJSCache<City[]>('/api/cities', { revalidate: 86400 }) // Cache for 1 day
 }
 
 export async function getTrendingSearches(): Promise<TrendingSearch[]> {
-  if (trendingSearchesCache) {
-    await delay(30)
-    return trendingSearchesCache
-  }
-
-  await delay(100)
-  trendingSearchesCache = mockTrendingSearches
-  return trendingSearchesCache
+  // Use Next.js fetch caching with SSR optimization
+  return await fetchWithNextJSCache<TrendingSearch[]>('/api/trending', { revalidate: 1800 }) // Cache for 30 minutes
 }
 
 export async function getFeaturedProperties(limit: number = 12): Promise<Property[]> {
@@ -49,9 +98,16 @@ export async function getFeaturedProperties(limit: number = 12): Promise<Propert
 }
 
 export async function getPropertiesByLocation(location: string, limit: number = 12): Promise<Property[]> {
-  const properties = await getProperties()
+  // Get caching strategy for this location
+  const cachingStrategy = getCachingStrategy(location.toLowerCase())
+  
+  // Use Next.js fetch caching with city-specific revalidation and SSR optimization
+  const properties = await fetchWithNextJSCache<Property[]>(`/api/properties?location=${location}`, {
+    revalidate: cachingStrategy.revalidate
+  })
+  
   return properties
-    .filter(p => 
+    .filter((p: Property) => 
       p.location.city.toLowerCase().includes(location.toLowerCase()) ||
       p.location.area.toLowerCase().includes(location.toLowerCase())
     )
@@ -102,9 +158,50 @@ function filterProperties(properties: Property[], params: SearchParams): Propert
   return filtered
 }
 
-// Cache invalidation function
-export function invalidateCache() {
-  propertiesCache = null
-  citiesCache = null
-  trendingSearchesCache = null
+// Example of how to use real fetch with Next.js caching
+export async function getCityData(citySlug: string) {
+  const cachingStrategy = getCachingStrategy(citySlug)
+  
+  // This is how you would use real fetch with Next.js caching
+  // const response = await fetch(`https://api.example.com/cities/${citySlug}`, {
+  //   next: {
+  //     revalidate: cachingStrategy.revalidate,
+  //     tags: [`city-${citySlug}`]
+  //   }
+  // })
+  // return response.json()
+  
+  // For now, simulate the behavior
+  await delay(200)
+  const cities = await getCities()
+  return cities.find(c => c.slug === citySlug)
+}
+
+// Example of how to use fetch with no caching (for real-time data)
+export async function getRealTimeData() {
+  // This is how you would use fetch without caching
+  // const response = await fetch('https://api.example.com/realtime', {
+  //   cache: 'no-store'
+  // })
+  // return response.json()
+  
+  // For now, simulate the behavior
+  await delay(100)
+  return { timestamp: new Date().toISOString(), data: 'real-time' }
+}
+
+// Example of how to use fetch with force revalidation
+export async function forceRevalidateCity(citySlug: string) {
+  // This is how you would force revalidation
+  // const response = await fetch(`https://api.example.com/cities/${citySlug}`, {
+  //   next: {
+  //     revalidate: 0
+  //   }
+  // })
+  // return response.json()
+  
+  // For now, simulate the behavior
+  await delay(100)
+  const cities = await getCities()
+  return cities.find(c => c.slug === citySlug)
 }

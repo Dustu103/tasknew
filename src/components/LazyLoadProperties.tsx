@@ -14,7 +14,7 @@ interface LazyLoadPropertiesProps {
 // Optimized LazyLoadProperties with React.memo and better performance
 export const LazyLoadProperties = memo(function LazyLoadProperties({ 
   properties, 
-  initialItems = 12, 
+  initialItems = 8, 
   itemsPerPage = 8,
   useVirtualization = false 
 }: LazyLoadPropertiesProps) {

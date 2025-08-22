@@ -1,8 +1,8 @@
 'use client'
 
 import { memo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Property } from '@/types'
 import { formatPrice, formatArea, getImageUrl } from '@/lib/utils'
@@ -15,6 +15,7 @@ interface PropertyCardProps {
 
 // Optimized PropertyCard with React.memo for performance
 export const PropertyCard = memo(function PropertyCard({ property, priority = false }: PropertyCardProps) {
+  const router = useRouter()
   const [imageLoading, setImageLoading] = useState(true)
   const [imageError, setImageError] = useState(false)
 
@@ -32,7 +33,10 @@ export const PropertyCard = memo(function PropertyCard({ property, priority = fa
   const imageSrc = imageError ? fallbackImage : getImageUrl(property.images[0], 400)
 
   return (
-    <div className="bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-100 group">
+    <div 
+      className="bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-100 group cursor-pointer"
+      onClick={() => router.push(`/property/${property.id}`)}
+    >
       <div className="relative aspect-[4/3] overflow-hidden">
         {/* Loading skeleton */}
         {imageLoading && (

@@ -24,6 +24,7 @@ export interface Property {
   developer?: string
   readyToMove?: boolean
   possessionDate?: string
+  availability?: number // Dynamic availability field
 }
 
 export interface City {

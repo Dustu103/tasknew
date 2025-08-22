@@ -1,140 +1,145 @@
-// app/city/[id]/page.tsx
 import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
-import Link from 'next/link'
-import { Header } from '@/components/Header'
-import { SearchBar } from '@/components/SearchBar'
-import { PropertyCardSkeleton } from '@/components/PropertyCard'
-import { LazyLoadProperties } from '@/components/LazyLoadProperties'
-import { mockProperties, mockCities } from '@/data/mockData'
-import { Property } from '@/types'
-
-// Long revalidate for prebuilt pages
-export const revalidate = 86400 // 24h
-
-// Tune: how many cities to pre-build at deploy time
-const PREBUILD_TOP_N = 20
-// TTL for dynamically-fetched city pages after first request
-const DYNAMIC_REVALIDATE = 60 // seconds
+import { CityPage } from '@/pages/CityPage'
+import { getCities, getPropertiesByLocation } from '@/lib/data'
 
 interface CityPageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
-// Prebuild top N cities (keeps build time reasonable)
+// Define caching strategies for different cities
+const CACHING_STRATEGIES = {
+  // Top tier cities - High traffic, frequent updates (1 hour)
+  'mumbai': { revalidate: 3600 },
+  'delhi': { revalidate: 3600 },
+  'bangalore': { revalidate: 3600 },
+  'bengaluru': { revalidate: 3600 },
+  'pune': { revalidate: 3600 },
+  
+  // Second tier cities - Medium traffic, daily updates (1 day)
+  'kolkata': { revalidate: 86400 },
+  'chennai': { revalidate: 86400 },
+  'hyderabad': { revalidate: 86400 },
+  'ahmedabad': { revalidate: 86400 },
+  'noida': { revalidate: 86400 },
+  'gurgaon': { revalidate: 86400 },
+  'gurugram': { revalidate: 86400 },
+  'thane': { revalidate: 86400 },
+  'navi-mumbai': { revalidate: 86400 },
+  'faridabad': { revalidate: 86400 },
+  
+  // Third tier cities - Lower traffic, weekly updates (1 week)
+  'lucknow': { revalidate: 604800 },
+  'jaipur': { revalidate: 604800 },
+  'indore': { revalidate: 604800 },
+  'bhopal': { revalidate: 604800 },
+  'patna': { revalidate: 604800 },
+  'chandigarh': { revalidate: 604800 },
+  'vadodara': { revalidate: 604800 },
+  'nagpur': { revalidate: 604800 },
+  'coimbatore': { revalidate: 604800 },
+  'kochi': { revalidate: 604800 },
+  
+  // Default for other cities - Monthly updates (1 month)
+  'default': { revalidate: 2592000 }
+}
+
+// Get caching strategy for a city
+function getCachingStrategy(citySlug: string) {
+  return CACHING_STRATEGIES[citySlug as keyof typeof CACHING_STRATEGIES] || CACHING_STRATEGIES.default
+}
+
+// Generate static params for top 20 cities
 export async function generateStaticParams() {
-  const top = mockCities.slice(0, PREBUILD_TOP_N)
-  return top.map((city) => ({ id: city.slug }))
-}
-
-/**
- * Try local dataset first (fast). If missing, attempt a server fetch (dynamic).
- * Replace fetch URL with your real API if needed.
- */
-async function fetchCityFromAPI(slug: string) {
   try {
-    const res = await fetch(`https://api.example.com/cities/${slug}`, {
-      next: { revalidate: DYNAMIC_REVALIDATE },
-    })
-    if (!res.ok) {
-      if (res.status === 404) return null
-      throw new Error(`fetch failed ${res.status}`)
+    const cities = await getCities()
+    const topCities = cities.slice(0, 20) // Top 20 cities
+    
+    return topCities.map((city) => ({
+      id: city.slug,
+    }))
+  } catch (error) {
+    console.error('Error generating static params:', error)
+    return []
+  }
+}
+
+export default async function CityPageNext({ params }: CityPageProps) {
+  const { id } = await params
+  
+  try {
+    // Get caching strategy for this city
+    const cachingStrategy = getCachingStrategy(id)
+    
+    // SSR: Fetch data on server side
+    const [cities, properties] = await Promise.all([
+      getCities(),
+      getPropertiesByLocation(id, 100)
+    ])
+    
+    // Find the city
+    const city = cities.find(c => c.slug === id)
+    
+    if (!city) {
+      notFound()
     }
-    return await res.json()
-  } catch (e) {
-    console.warn('fetchCityFromAPI error', e)
-    return null
-  }
-}
-
-async function getCityData(slug: string) {
-  const local = mockCities.find((c) => c.slug === slug)
-  if (local) return local
-  return await fetchCityFromAPI(slug)
-}
-
-// Metadata works for both static & dynamic pages
-export async function generateMetadata({ params }: CityPageProps) {
-  const city = await getCityData(params.id)
-  if (!city) {
-    return { title: 'City Not Found', description: 'The requested city could not be found.' }
-  }
-  return {
-    title: `Properties in ${city.name} - Buy, Rent, Sell`,
-    description: `Find your dream home in ${city.name}. Browse verified properties for sale and rent in ${city.name}.`,
-    openGraph: { title: `Properties in ${city.name} - Housing.com`, description: `Find your dream home in ${city.name}.`, images: [city.image] },
-  }
-}
-
-function filterPropertiesByCity(properties: Property[], cityNameOrSlug: string): Property[] {
-  // Accept either city slug or name; prefer matching by city name if found locally
-  const city = mockCities.find((c) => c.name.toLowerCase() === cityNameOrSlug.toLowerCase())
-  if (!city) return []
-  return properties
-    .filter((p) => p.location.city.toLowerCase() === city.name.toLowerCase())
-    .sort((a, b) => {
-      if (a.featured && !b.featured) return -1
-      if (!a.featured && b.featured) return 1
-      return new Date(b.postedDate).getTime() - new Date(a.postedDate).getTime()
-    })
-}
-
-// Server Component for city properties (may resolve via API)
-async function CityProperties({ citySlug }: { citySlug: string }) {
-  const city = await getCityData(citySlug)
-  if (!city) notFound()
-
-  const cityProperties = filterPropertiesByCity(mockProperties, city.name)
-
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Properties in {city.name}</h1>
-        <p className="text-gray-600">Found {cityProperties.length} properties in {city.name}</p>
-      </div>
-
-      {cityProperties.length === 0 ? (
-        <div className="text-center py-16">
-          <div className="max-w-md mx-auto">
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No properties found in {city.name}</h3>
-            <p className="text-gray-600 mb-6">Try searching in nearby areas or browse our featured properties</p>
-            <Link href="/" className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">Browse Featured Properties</Link>
+    
+    // Log caching strategy for debugging
+    console.log(`City: ${city.name}, Revalidation: ${cachingStrategy.revalidate}s (${cachingStrategy.revalidate / 3600}h)`)
+    
+    return (
+      <Suspense fallback={
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading {city.name} properties...</p>
           </div>
         </div>
-      ) : (
-        <LazyLoadProperties properties={cityProperties} initialItems={16} itemsPerPage={12} useVirtualization={cityProperties.length > 50} />
-      )}
-    </div>
-  )
+      }>
+        <CityPage 
+          properties={properties} 
+          cities={cities} 
+          revalidateTime={cachingStrategy.revalidate}
+        />
+      </Suspense>
+    )
+  } catch (error) {
+    console.error('Error loading city page:', error)
+    notFound()
+  }
 }
 
-function CityPropertiesSkeleton() {
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="mb-8">
-        <div className="h-8 bg-gray-200 rounded w-48 mb-2 animate-pulse" />
-        <div className="h-6 bg-gray-200 rounded w-64 animate-pulse" />
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {Array.from({ length: 16 }).map((_, i) => <PropertyCardSkeleton key={i} />)}
-      </div>
-    </div>
-  )
-}
-
-export default function CityPage({ params }: CityPageProps) {
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
-      <main className="py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
-          <SearchBar onSearch={(query, location) => console.log('Search:', { query, location })} className="max-w-2xl" />
-        </div>
-
-        <Suspense fallback={<CityPropertiesSkeleton />}>
-          <CityProperties citySlug={params.id} />
-        </Suspense>
-      </main>
-    </div>
-  )
+// Set dynamic metadata
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  
+  try {
+    const cities = await getCities()
+    const city = cities.find(c => c.slug === id)
+    
+    if (!city) {
+      return {
+        title: 'City Not Found',
+        description: 'The requested city could not be found.'
+      }
+    }
+    
+    const cachingStrategy = getCachingStrategy(id)
+    const revalidateHours = Math.round(cachingStrategy.revalidate / 3600)
+    
+    return {
+      title: `Properties in ${city.name} - Housing.com`,
+      description: `Find ${city.propertyCount.toLocaleString()} properties in ${city.name}, ${city.state}. Updated every ${revalidateHours} hours.`,
+      openGraph: {
+        title: `Properties in ${city.name}`,
+        description: `Discover ${city.propertyCount.toLocaleString()} properties in ${city.name}`,
+        type: 'website',
+      }
+    }
+  } catch (error) {
+    return {
+      title: 'Properties - Housing.com',
+      description: 'Find your dream home'
+    }
+  }
 }
